@@ -258,9 +258,7 @@ public class DatabaseHelper {
                 SeriesIterator<Transaction, Event> seriesIterator = new SeriesIterator<Transaction, Event>(transactionResult, new SeriesIterator.SeriesIteratorFunctions<Transaction, Event>() {
                     @Override
                     public void onEveryItem(SeriesIterator<Transaction, Event> context, Transaction item) {
-                        getEventDetail(item.getEvent_id(), event -> {
-
-                        });
+                        getEventDetail(item.getEvent_id(), event -> context.next(event));
                     }
 
                     @Override

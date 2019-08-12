@@ -2,11 +2,14 @@ package com.multazamgsd.takin.ui.all_event;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ShareCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,8 +17,10 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.multazamgsd.takin.R;
 import com.multazamgsd.takin.model.Event;
+import com.multazamgsd.takin.ui.event_detail.EventDetailActivity;
 import com.multazamgsd.takin.util.AuthHelper;
 import com.multazamgsd.takin.util.DatabaseHelper;
 
@@ -54,9 +59,9 @@ public class AllEventActivity extends AppCompatActivity {
         etSearch = findViewById(R.id.editTextSearch);
         tvPurpose = findViewById(R.id.textViewPurpose);
         mRecyclerView = findViewById(R.id.recyclerViewAllEvent);
+        mList = new ArrayList<>();
         setLoading(true);
 
-        mList = new ArrayList<>();
         mDatabaseHelper = new DatabaseHelper();
         mAuthHelper = new AuthHelper(this);
         uid = mAuthHelper.getCurrentUser().getUid();
@@ -98,8 +103,12 @@ public class AllEventActivity extends AppCompatActivity {
 
     private void getBookedEvent() {
         mDatabaseHelper.getRegisteredEvent(uid, result -> {
-            mAdapter.setListEvents(result);
+            mList.clear();
+            mList.addAll(result);
+
+            mAdapter.setListEvents(mList);
             mAdapter.notifyDataSetChanged();
+
             setLoading(false);
         });
     }
@@ -110,8 +119,12 @@ public class AllEventActivity extends AppCompatActivity {
 
     private void getEventByType(String type) {
         mDatabaseHelper.getEventListByType(type, result -> {
-            mAdapter.setListEvents(result);
+            mList.clear();
+            mList.addAll(result);
+
+            mAdapter.setListEvents(mList);
             mAdapter.notifyDataSetChanged();
+
             setLoading(false);
         });
     }
@@ -142,19 +155,41 @@ public class AllEventActivity extends AppCompatActivity {
     }
 
     private AllEventAdapter.eventAdapterListener eventAdapterListener = new AllEventAdapter.eventAdapterListener() {
+
+        @Override
+        public void onEventShare(int itemPosition) {
+            shareItem(mList.get(itemPosition));
+        }
+
         @Override
         public void onEventClick(int itemPosition) {
-
+            detailIntent(mList.get(itemPosition));
+            Log.d("Intent", String.valueOf(itemPosition));
         }
 
         @Override
         public void onEventLike(int itemPosition) {
-
-        }
-
-        @Override
-        public void onEventShare(int itemPosition) {
-
+            //doLikeItem(recommendedList.get(itemPosition), "recommended");
         }
     };
+
+    private void detailIntent(Event dataToSend) {
+        Intent i = new Intent(this, EventDetailActivity.class);
+        i.putExtra(EventDetailActivity.EXTRA_EVENT, dataToSend);
+        Log.d("Intent", new Gson().toJson(dataToSend));
+        startActivity(i);
+    }
+
+    private void shareItem(Event event) {
+        int ticketAvailable = Integer.parseInt(event.getTicket_total()) - Integer.parseInt(event.getTicket_sold());
+        ShareCompat.IntentBuilder
+                .from(this)
+                .setType("text/plain")
+                .setChooserTitle("Share event")
+                .setText(
+                        String.format("Ayo daftar event %s di aplikasi Takin, hanya %s tiket tersedia!",
+                                event.getTitle(),
+                                String.valueOf(ticketAvailable)))
+                .startChooser();
+    }
 }
