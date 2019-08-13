@@ -90,6 +90,7 @@ public class AllEventActivity extends AppCompatActivity {
                 break;
             case "liked":
                 listTitle = "Liked";
+                getMyLikedEvent();
                 break;
             case "booked":
                 listTitle = "Registered";
@@ -114,8 +115,17 @@ public class AllEventActivity extends AppCompatActivity {
         });
     }
 
-    private ArrayList<Event> getMyLikedEvent() {
-        return null;
+    private void getMyLikedEvent() {
+        mDatabaseHelper.getLikedEvent(uid, result -> {
+            if (result != null) {
+                mList.clear();
+                mList.addAll(result);
+
+                mAdapter.setListEvents(mList);
+                mAdapter.notifyDataSetChanged();
+            }
+            setLoading(false);
+        });
     }
 
     private void getEventByType(String type) {

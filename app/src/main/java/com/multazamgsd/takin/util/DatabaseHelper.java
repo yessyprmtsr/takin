@@ -278,6 +278,44 @@ public class DatabaseHelper {
         });
     }
 
+    public void getLikedEvent(String uid, EventListListener callback) {
+        likeRef.whereEqualTo("uid", uid).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                if (task.getResult().size() == 0) {
+                    callback.onComplete(null);
+                    return;
+                }
+
+                ArrayList<Transaction> likeResult = new ArrayList<>();
+                for(DocumentSnapshot doc : task.getResult()){
+                    Transaction t = doc.toObject(Transaction.class);
+                    t.setId(doc.getId());
+                    likeResult.add(t);
+                }
+
+                SeriesIterator<Transaction, Event> seriesIterator = new SeriesIterator<Transaction, Event>(likeResult, new SeriesIterator.SeriesIteratorFunctions<Transaction, Event>() {
+                    @Override
+                    public void onEveryItem(SeriesIterator<Transaction, Event> context, Transaction item) {
+                        getEventDetail(item.getEvent_id(), event -> {
+                            event.setLiked(true);
+                            context.next(event);
+                        });
+                    }
+
+                    @Override
+                    public void onReturn(List<Event> values) {
+                        ArrayList<Event> result = new ArrayList<>();
+                        result.addAll(values);
+                        callback.onComplete(result);
+                    }
+                });
+                seriesIterator.execute();
+            } else {
+                callback.onComplete(null);
+            }
+        });
+    }
+
     public interface CheckFieldExistListener {
         void onComplete(Boolean isExist);
     }
