@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.multazamgsd.takin.R;
@@ -180,7 +181,27 @@ public class AllEventActivity extends AppCompatActivity {
 
         @Override
         public void onEventLike(int itemPosition) {
-            //doLikeItem(recommendedList.get(itemPosition), "recommended");
+            if (mList.get(itemPosition).isLiked()) {
+                // Do unlike event
+                mDatabaseHelper.doUnlikeEvent(mList.get(itemPosition).getId(), uid, task -> {
+                    Toast.makeText(AllEventActivity.this, "Deleted from liked event", Toast.LENGTH_LONG).show();
+
+                    Event thisEvent = mList.get(itemPosition);
+                    thisEvent.setLiked(false);
+                    mList.set(itemPosition, thisEvent);
+                    mAdapter.notifyItemChanged(itemPosition);
+                });
+            } else {
+                // Do like event
+                mDatabaseHelper.doLikeEvent(mList.get(itemPosition).getId(), uid, task -> {
+                    Toast.makeText(AllEventActivity.this, "Added to liked event", Toast.LENGTH_LONG).show();
+
+                    Event thisEvent = mList.get(itemPosition);
+                    thisEvent.setLiked(true);
+                    mList.set(itemPosition, thisEvent);
+                    mAdapter.notifyItemChanged(itemPosition);
+                });
+            }
         }
     };
 

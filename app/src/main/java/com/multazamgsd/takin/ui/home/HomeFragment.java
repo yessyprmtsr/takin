@@ -53,6 +53,7 @@ public class HomeFragment extends Fragment {
     private DatabaseHelper mDatabaseHelper;
     private AuthHelper mAuthHelper;
 
+    private ArrayList<Event> slideShowList = new ArrayList<>();
     private ArrayList<Event> recommendedList = new ArrayList<>();
     private ArrayList<Event> newList = new ArrayList<>();
 
@@ -324,7 +325,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void loadData() {
-        FirebaseFirestore.getInstance().collection("event").limit(4).get().addOnCompleteListener(task -> {
+        FirebaseFirestore.getInstance().collection("event").limit(7).get().addOnCompleteListener(task -> {
             ArrayList<Event> result = new ArrayList<>();
             if (task.isSuccessful()) {
                 for(DocumentSnapshot doc : task.getResult()){
@@ -335,20 +336,23 @@ public class HomeFragment extends Fragment {
 
                 // Divide into 2 lists
                 for (int i=0; i < result.size(); i++) {
-                    if (i < 2) {
-                        newList.add(result.get(i));
-                    } else {
+                    if (i <= 2) {
+                        slideShowList.add(result.get(i));
+                    } else if (i >= 3 && i <= 4) {
                         recommendedList.add(result.get(i));
+                    } else if (i >= 4) {
+                        newList.add(result.get(i));
                     }
                 }
+
+                // Set to slideshow
+                mPagerAdapter.setSlideshowList(slideShowList);
+                mPagerAdapter.notifyDataSetChanged();
+                mShadowTransformer.enableScaling(true);
 
                 // Set to recommended rv
                 recommendedAdapter.setListEvents(recommendedList);
                 recommendedAdapter.notifyDataSetChanged();
-
-                mPagerAdapter.setSlideshowList(result);
-                mPagerAdapter.notifyDataSetChanged();
-                mShadowTransformer.enableScaling(true);
 
                 // Set to new rv
                 newAdapter.setListEvents(newList);
