@@ -1,7 +1,6 @@
 package com.multazamgsd.takin.ui.home;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
@@ -21,9 +20,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.sundeepk.compactcalendarview.CompactCalendarView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -31,9 +28,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.multazamgsd.takin.R;
 import com.multazamgsd.takin.model.Event;
 import com.multazamgsd.takin.ui.event_detail.EventDetailActivity;
@@ -67,9 +61,13 @@ public class HomeFragment extends Fragment {
 
     private RecyclerView rvEventRecommended;
     private RecyclerView rvEventNew;
-    private ViewPager viewPager;
     private CompactCalendarView compactCalendarView;
     private TextView tvMonth;
+
+    // Slide show
+    private ViewPager mViewPager;
+    private ShadowTransformer mShadowTransformer;
+    private SlideshowPagerAdapter mPagerAdapter;
 
     // Bottom sheet
     private View llBottomSheet;
@@ -92,7 +90,7 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         rvEventRecommended = view.findViewById(R.id.recyclerViewEventRecommended);
         rvEventNew = view.findViewById(R.id.recyclerViewEventNew);
-        viewPager = view.findViewById(R.id.viewPagerSlideshow);
+        mViewPager = view.findViewById(R.id.viewPagerSlideshow);
 
         compactCalendarView = view.findViewById(R.id.calendarView);
         tvMonth = view.findViewById(R.id.textViewMonth);
@@ -267,13 +265,10 @@ public class HomeFragment extends Fragment {
     }
 
     private void setSlideshow() {
-        SlideshowPagerAdapter pagerAdapter = new SlideshowPagerAdapter(getFragmentManager(), dpToPixels(2, getActivity()));
-        ShadowTransformer fragmentCardShadowTransformer = new ShadowTransformer(viewPager, pagerAdapter);
-        fragmentCardShadowTransformer.enableScaling(true);
-
-        viewPager.setAdapter(pagerAdapter);
-        viewPager.setPageTransformer(false, fragmentCardShadowTransformer);
-        viewPager.setOffscreenPageLimit(3);
+        mPagerAdapter = new SlideshowPagerAdapter(getActivity(), itemPosition -> detailIntent(recommendedList.get(itemPosition)));
+        mShadowTransformer = new ShadowTransformer(mViewPager, mPagerAdapter);
+        mViewPager.setAdapter(mPagerAdapter);
+        mViewPager.setPageTransformer(false, mShadowTransformer);
     }
 
     private void setNewList() {
@@ -350,6 +345,10 @@ public class HomeFragment extends Fragment {
                 // Set to recommended rv
                 recommendedAdapter.setListEvents(recommendedList);
                 recommendedAdapter.notifyDataSetChanged();
+
+                mPagerAdapter.setSlideshowList(result);
+                mPagerAdapter.notifyDataSetChanged();
+                mShadowTransformer.enableScaling(true);
 
                 // Set to new rv
                 newAdapter.setListEvents(newList);
