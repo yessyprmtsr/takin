@@ -9,6 +9,7 @@
     android:orientation="vertical"
     app:behavior_hideable="true"
     app:behavior_peekHeight="85dp"
+    android:maxHeight="362dp"
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
     <LinearLayout
@@ -101,10 +102,11 @@
                     android:text="Anda tidak memiliki\njadwal event di tanggal ini"/>
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclerViewEvent"
+                    android:id="@+id/recyclerViewCalendarEvent"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:visibility="gone" />
+                    android:padding="4dp"
+                    android:clipToPadding="false"
+                    android:layout_height="wrap_content"/>
 
             </LinearLayout>
 

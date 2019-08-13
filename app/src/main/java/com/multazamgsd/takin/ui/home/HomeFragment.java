@@ -30,6 +30,10 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.multazamgsd.takin.R;
 import com.multazamgsd.takin.model.Event;
 import com.multazamgsd.takin.ui.event_detail.EventDetailActivity;
@@ -37,6 +41,10 @@ import com.multazamgsd.takin.util.AuthHelper;
 import com.multazamgsd.takin.util.DatabaseHelper;
 import com.multazamgsd.takin.util.DividerItemDecorator;
 import com.multazamgsd.takin.util.ShadowTransformer;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -109,7 +117,54 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    private void showBottomSheet(Date date, List<com.github.sundeepk.compactcalendarview.domain.Event> events) {
+    private void setCalendar() {
+        compactCalendarView.setFirstDayOfWeek(Calendar.SUNDAY);
+        compactCalendarView.setUseThreeLetterAbbreviation(true);
+
+        // Set date to today
+        SimpleDateFormat dateFormatForMonth;
+        dateFormatForMonth = new SimpleDateFormat("MMMM - yyyy", Locale.getDefault());
+        compactCalendarView.setCurrentDate(Calendar.getInstance(Locale.getDefault()).getTime());
+        tvMonth.setText(dateFormatForMonth.format(compactCalendarView.getFirstDayOfCurrentMonth()));
+
+        // define a listener to receive callbacks when certain events happen.
+        compactCalendarView.setListener(new CompactCalendarView.CompactCalendarViewListener() {
+            @Override
+            public void onDayClick(Date dateClicked) {
+                List<com.github.sundeepk.compactcalendarview.domain.Event> events = compactCalendarView.getEvents(dateClicked);
+                showBottomSheet(dateClicked, events);
+            }
+
+            @Override
+            public void onMonthScroll(Date firstDayOfNewMonth) {
+                tvMonth.setText(dateFormatForMonth.format(firstDayOfNewMonth));
+            }
+        });
+
+        getUserRegisteredEvent();
+    }
+
+    private void getUserRegisteredEvent() {
+        mDatabaseHelper.getRegisteredEvent(mAuthHelper.getCurrentUser().getUid(), result -> {
+            if (result == null) {
+                return;
+            }
+            for (Event e : result) {
+                // Converting date to milis
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                try {
+                    Date date = sdf.parse(e.getDate());
+                    long milis = date.getTime();
+                    com.github.sundeepk.compactcalendarview.domain.Event ev = new com.github.sundeepk.compactcalendarview.domain.Event(Color.BLACK, milis, e);
+                    compactCalendarView.addEvent(ev);
+                } catch (ParseException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void showBottomSheet(Date date, List<com.github.sundeepk.compactcalendarview.domain.Event> calendarEvents) {
         if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         }
@@ -131,14 +186,72 @@ public class HomeFragment extends Fragment {
             e.printStackTrace();
         }
 
-        RecyclerView rvEvent = view.findViewById(R.id.recyclerViewEvent);
+        RecyclerView rvCalendarEvent = view.findViewById(R.id.recyclerViewCalendarEvent);
         TextView tvNoEvent = view.findViewById(R.id.textViewNoEvent);
-        if (events.size() == 0) {
+        if (calendarEvents.size() == 0) {
+            // Showing no event text
             tvNoEvent.setVisibility(View.VISIBLE);
-            rvEvent.setVisibility(View.GONE);
+            rvCalendarEvent.setVisibility(View.GONE);
         } else {
             tvNoEvent.setVisibility(View.GONE);
-            rvEvent.setVisibility(View.VISIBLE);
+            rvCalendarEvent.setVisibility(View.VISIBLE);
+
+            // Setup list
+            ArrayList<Event> calendarEventList = new ArrayList<>();
+            CalendarEventAdapter ceAdapter = new CalendarEventAdapter(getActivity(), itemPosition -> {
+                detailIntent(calendarEventList.get(itemPosition));
+            });
+            LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false);
+            rvCalendarEvent.setLayoutManager(layoutManager);
+            rvCalendarEvent.setHasFixedSize(true);
+            rvCalendarEvent.setNestedScrollingEnabled(false);
+            rvCalendarEvent.setAdapter(ceAdapter);
+
+            // Getting event data
+            String data = new Gson().toJson(calendarEvents);
+            JSONArray calendarEventArray = null;
+            try {
+                calendarEventArray = new JSONArray(data);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            for (int i = 0; i < calendarEventArray.length(); i++) {
+                JSONObject row = null;
+                JSONObject eventObject = null;
+                try {
+                    row = calendarEventArray.getJSONObject(i);
+                    eventObject = (JSONObject) row.get("data");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    Event oneEvent = new Event();
+                    oneEvent.setDate(eventObject.getString("date"));
+                    oneEvent.setDescription(eventObject.getString("description"));
+                    Log.d(TAG, new Gson().toJson(eventObject.getString("description")));
+                    oneEvent.setLiked(eventObject.getBoolean("isLiked"));
+                    oneEvent.setLocation_address(eventObject.getString("location_address"));
+                    oneEvent.setLocation_lat(eventObject.getString("location_lat"));
+                    oneEvent.setLocation_long(eventObject.getString("location_long"));
+                    oneEvent.setLocation_name(eventObject.getString("location_name"));
+                    oneEvent.setPhoto_url(eventObject.getString("photo_url"));
+                    oneEvent.setPoint(eventObject.getString("point"));
+                    oneEvent.setPrice(eventObject.getString("price"));
+                    oneEvent.setPublisher(eventObject.getString("publisher"));
+                    oneEvent.setTicket_sold(eventObject.getString("ticket_sold"));
+                    oneEvent.setTicket_total(eventObject.getString("ticket_total"));
+                    oneEvent.setTime_start(eventObject.getString("time_start"));
+                    oneEvent.setTitle(eventObject.getString("title"));
+                    oneEvent.setType(eventObject.getString("type"));
+
+                    calendarEventList.add(oneEvent);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            ceAdapter.setListEvents(calendarEventList);
         }
 
         mBottomSheetDialog = new BottomSheetDialog(getActivity());
@@ -151,34 +264,6 @@ public class HomeFragment extends Fragment {
 
         mBottomSheetDialog.show();
         mBottomSheetDialog.setOnDismissListener(dialog -> mBottomSheetDialog = null);
-    }
-
-    private void setCalendar() {
-        compactCalendarView.setFirstDayOfWeek(Calendar.SUNDAY);
-        com.github.sundeepk.compactcalendarview.domain.Event ev2 = new com.github.sundeepk.compactcalendarview.domain.Event(Color.GREEN, 1433704251000L);
-        compactCalendarView.addEvent(ev2);
-        compactCalendarView.setUseThreeLetterAbbreviation(true);
-
-        // Set date to today
-        SimpleDateFormat dateFormatForMonth;
-        dateFormatForMonth = new SimpleDateFormat("MMMM - yyyy", Locale.getDefault());
-        compactCalendarView.setCurrentDate(Calendar.getInstance(Locale.getDefault()).getTime());
-        tvMonth.setText(dateFormatForMonth.format(compactCalendarView.getFirstDayOfCurrentMonth()));
-
-        // define a listener to receive callbacks when certain events happen.
-        compactCalendarView.setListener(new CompactCalendarView.CompactCalendarViewListener() {
-            @Override
-            public void onDayClick(Date dateClicked) {
-                List<com.github.sundeepk.compactcalendarview.domain.Event> events = compactCalendarView.getEvents(dateClicked);
-                Log.d(TAG, "Day was clicked: " + dateClicked + " with events " + events);
-                showBottomSheet(dateClicked, events);
-            }
-
-            @Override
-            public void onMonthScroll(Date firstDayOfNewMonth) {
-                tvMonth.setText(dateFormatForMonth.format(firstDayOfNewMonth));
-            }
-        });
     }
 
     private void setSlideshow() {

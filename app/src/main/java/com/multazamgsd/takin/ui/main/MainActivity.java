@@ -60,13 +60,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //Get navigation drawer header layout
         View navHeaderView = navigationDrawerView.getHeaderView(0);
         CircleImageView ivUserPhoto = navHeaderView.findViewById(R.id.imageViewDrawerProfile);
-        if (!Prefs.getString(GlobalConfig.PHOTO_PREFS, null).equals("")) {
-            GlideApp.with(this)
-                    .load(Prefs.getString(GlobalConfig.PHOTO_PREFS, null))
-                    .apply(RequestOptions
-                            .placeholderOf(R.drawable.ic_image_grey_24dp)
-                            .error(R.drawable.ic_image_grey_24dp))
-                    .into(ivUserPhoto);
+        if (Prefs.getString(GlobalConfig.PHOTO_PREFS, null) != null) {
+            if (!Prefs.getString(GlobalConfig.PHOTO_PREFS, null).equals("")) {
+                GlideApp.with(this)
+                        .load(Prefs.getString(GlobalConfig.PHOTO_PREFS, null))
+                        .apply(RequestOptions
+                                .placeholderOf(R.drawable.ic_image_grey_24dp)
+                                .error(R.drawable.ic_image_grey_24dp))
+                        .into(ivUserPhoto);
+            }
         }
         TextView username = navHeaderView.findViewById(R.id.textViewDrawerUsername);
         username.setText(String.format("%s %s", Prefs.getString(GlobalConfig.FIRST_NAME_PREFS, null), Prefs.getString(GlobalConfig.LAST_NAME_PREFS, null)));

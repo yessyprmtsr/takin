@@ -248,6 +248,11 @@ public class DatabaseHelper {
     public void getRegisteredEvent(String uid, EventListListener callback) {
         transactionRef.whereEqualTo("uid", uid).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
+                if (task.getResult().size() == 0) {
+                    callback.onComplete(null);
+                    return;
+                }
+
                 ArrayList<Transaction> transactionResult = new ArrayList<>();
                 for(DocumentSnapshot doc : task.getResult()){
                     Transaction t = doc.toObject(Transaction.class);

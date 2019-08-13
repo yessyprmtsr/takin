@@ -103,12 +103,13 @@ public class AllEventActivity extends AppCompatActivity {
 
     private void getBookedEvent() {
         mDatabaseHelper.getRegisteredEvent(uid, result -> {
-            mList.clear();
-            mList.addAll(result);
+            if (result != null) {
+                mList.clear();
+                mList.addAll(result);
 
-            mAdapter.setListEvents(mList);
-            mAdapter.notifyDataSetChanged();
-
+                mAdapter.setListEvents(mList);
+                mAdapter.notifyDataSetChanged();
+            }
             setLoading(false);
         });
     }
