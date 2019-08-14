@@ -68,6 +68,13 @@
                     android:textColor="@android:color/black"
                     android:textStyle="bold" />
 
+                <ImageView
+                    android:id="@+id/imageViewRefreshCalendar"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_alignParentEnd="true"
+                    android:src="@drawable/ic_refresh_black_24dp"/>
+
             </RelativeLayout>
 
             <androidx.cardview.widget.CardView

@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -48,7 +49,9 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class EventDetailActivity extends AppCompatActivity {
     public static final String EXTRA_EVENT = "extra_event";
-    public static final String TAG = EventDetailActivity.class.getSimpleName();
+    private static final String TAG = EventDetailActivity.class.getSimpleName();
+    public static Activity activity;
+
     private String uid;
     private Menu menu;
     private boolean isEventLiked = false;
@@ -88,6 +91,7 @@ public class EventDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_detail);
+        activity = this;
 
         toolbar = findViewById(R.id.toolbar);
         toolbar.setTitleTextColor(Color.WHITE);

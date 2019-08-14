@@ -164,6 +164,9 @@ public class RegistrationActivity extends AppCompatActivity {
                             i.putExtra(AllEventActivity.EXTRA_EVENT, "booked");
                             startActivity(i);
                             finish();
+                            if (EventDetailActivity.activity != null) {
+                                EventDetailActivity.activity.finish();
+                            }
                         });
 
                         mDatabaseHelper.getUserDetailFromUID(uid, userResult -> {

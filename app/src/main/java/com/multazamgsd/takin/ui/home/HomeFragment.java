@@ -20,6 +20,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.LinearInterpolator;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.github.sundeepk.compactcalendarview.CompactCalendarView;
@@ -63,6 +65,7 @@ public class HomeFragment extends Fragment {
     private RecyclerView rvEventRecommended;
     private RecyclerView rvEventNew;
     private CompactCalendarView compactCalendarView;
+    private ImageView btRefreshCalendar;
     private TextView tvMonth;
 
     // Slide show
@@ -95,6 +98,7 @@ public class HomeFragment extends Fragment {
 
         compactCalendarView = view.findViewById(R.id.calendarView);
         tvMonth = view.findViewById(R.id.textViewMonth);
+        btRefreshCalendar = view.findViewById(R.id.imageViewRefreshCalendar);
 
         // Bottom sheet
         llBottomSheet = view.findViewById(R.id.bottom_sheet);
@@ -140,10 +144,12 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        btRefreshCalendar.setOnClickListener(v -> getUserRegisteredEvent());
         getUserRegisteredEvent();
     }
 
     private void getUserRegisteredEvent() {
+        compactCalendarView.removeAllEvents();
         mDatabaseHelper.getRegisteredEvent(mAuthHelper.getCurrentUser().getUid(), result -> {
             if (result == null) {
                 return;
