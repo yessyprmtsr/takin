@@ -19,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.multazamgsd.takin.R;
 import com.multazamgsd.takin.model.Event;
 import com.multazamgsd.takin.ui.event_detail.EventDetailActivity;
@@ -181,29 +182,61 @@ public class AllEventActivity extends AppCompatActivity {
 
         @Override
         public void onEventLike(int itemPosition) {
-            if (mList.get(itemPosition).isLiked()) {
-                // Do unlike event
-                mDatabaseHelper.doUnlikeEvent(mList.get(itemPosition).getId(), uid, task -> {
-                    Toast.makeText(AllEventActivity.this, "Deleted from liked event", Toast.LENGTH_LONG).show();
+            String eventId = mList.get(itemPosition).getId();
+            if (mList.get(itemPosition).isLiked()) {  // Do Unlike
+                // Checking isEventAlreadyLiked?
+                isEventAlreadyLiked(eventId, uid, isLiked -> {
+                    if (!isLiked) {
+                        // No need to unlike, because this event is not liked by this user
+                        Event thisEvent = mList.get(itemPosition);
+                        thisEvent.setLiked(false);
+                        mList.set(itemPosition, thisEvent);
+                        mAdapter.notifyItemChanged(itemPosition);
+                        return;
+                    }
 
-                    Event thisEvent = mList.get(itemPosition);
-                    thisEvent.setLiked(false);
-                    mList.set(itemPosition, thisEvent);
-                    mAdapter.notifyItemChanged(itemPosition);
+                    // Do unlike event
+                    mDatabaseHelper.doUnlikeEvent(eventId, uid, task -> {
+                        Toast.makeText(AllEventActivity.this, "Deleted from liked event", Toast.LENGTH_LONG).show();
+
+                        Event thisEvent = mList.get(itemPosition);
+                        thisEvent.setLiked(false);
+                        mList.set(itemPosition, thisEvent);
+                        mAdapter.notifyItemChanged(itemPosition);
+                    });
                 });
-            } else {
-                // Do like event
-                mDatabaseHelper.doLikeEvent(mList.get(itemPosition).getId(), uid, task -> {
-                    Toast.makeText(AllEventActivity.this, "Added to liked event", Toast.LENGTH_LONG).show();
+            } else { // Do like
+                // Checking isEventAlreadyLiked?
+                isEventAlreadyLiked(eventId, uid, isLiked -> {
+                    if (isLiked) {
+                        // No need to like, because this event is already liked by this user
+                        Event thisEvent = mList.get(itemPosition);
+                        thisEvent.setLiked(true);
+                        mList.set(itemPosition, thisEvent);
+                        mAdapter.notifyItemChanged(itemPosition);
+                        return;
+                    }
 
-                    Event thisEvent = mList.get(itemPosition);
-                    thisEvent.setLiked(true);
-                    mList.set(itemPosition, thisEvent);
-                    mAdapter.notifyItemChanged(itemPosition);
+                    // Do like event
+                    mDatabaseHelper.doLikeEvent(eventId, uid, task -> {
+                        Toast.makeText(AllEventActivity.this, "Added to liked event", Toast.LENGTH_LONG).show();
+
+                        Event thisEvent = mList.get(itemPosition);
+                        thisEvent.setLiked(true);
+                        mList.set(itemPosition, thisEvent);
+                        mAdapter.notifyItemChanged(itemPosition);
+                    });
                 });
             }
         }
     };
+
+    private void isEventAlreadyLiked(String eventId, String uid, IsEventLikedListener callback) {
+        mDatabaseHelper.checkEventLiked(eventId, uid, commentId -> {
+            boolean isEventLiked = commentId != null;
+            callback.onResult(isEventLiked);
+        });
+    }
 
     private void detailIntent(Event dataToSend) {
         Intent i = new Intent(this, EventDetailActivity.class);
@@ -223,5 +256,9 @@ public class AllEventActivity extends AppCompatActivity {
                                 event.getTitle(),
                                 String.valueOf(ticketAvailable)))
                 .startChooser();
+    }
+
+    private interface IsEventLikedListener {
+        void onResult(boolean isLiked);
     }
 }

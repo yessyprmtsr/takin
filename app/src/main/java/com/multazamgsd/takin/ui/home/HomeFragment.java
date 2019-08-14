@@ -266,7 +266,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void setSlideshow() {
-        mPagerAdapter = new SlideshowPagerAdapter(getActivity(), itemPosition -> detailIntent(recommendedList.get(itemPosition)));
+        mPagerAdapter = new SlideshowPagerAdapter(getActivity(), itemPosition -> detailIntent(slideShowList.get(itemPosition)));
         mShadowTransformer = new ShadowTransformer(mViewPager, mPagerAdapter);
         mViewPager.setAdapter(mPagerAdapter);
         mViewPager.setPageTransformer(false, mShadowTransformer);

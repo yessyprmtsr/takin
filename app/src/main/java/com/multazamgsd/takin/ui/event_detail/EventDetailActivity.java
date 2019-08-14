@@ -198,6 +198,7 @@ public class EventDetailActivity extends AppCompatActivity {
         mAdapter = new MoreEventAdapter(this, new MoreEventAdapter.eventAdapterListener() {
             @Override
             public void onEventClick(int itemPosition) {
+                Log.d(TAG, String.valueOf(itemPosition));
                 Intent i = new Intent(EventDetailActivity.this, EventDetailActivity.class);
                 i.putExtra(EXTRA_EVENT, eventList.get(itemPosition));
                 startActivity(i);
