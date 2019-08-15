@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,11 +33,13 @@ import java.util.ArrayList;
 
 public class AllEventActivity extends AppCompatActivity {
     public static final String EXTRA_EVENT = "extra_event";
+    private boolean isFiltered;
     private String INTENT_PURPOSE;
     private String uid, listTitle;
 
     private Toolbar toolbar;
     private ArrayList<Event> mList;
+    private ArrayList<Event> mListAll;
 
     private LinearLayout llMain, llLoading;
     private EditText etSearch;
@@ -62,7 +66,9 @@ public class AllEventActivity extends AppCompatActivity {
         etSearch = findViewById(R.id.editTextSearch);
         tvPurpose = findViewById(R.id.textViewPurpose);
         mRecyclerView = findViewById(R.id.recyclerViewAllEvent);
+        etSearch.addTextChangedListener(tw);
         mList = new ArrayList<>();
+        mListAll = new ArrayList<>();
         setLoading(true);
 
         mDatabaseHelper = new DatabaseHelper();
@@ -105,9 +111,27 @@ public class AllEventActivity extends AppCompatActivity {
                 break;
             case "search":
                 listTitle = "Search Result";
+                getAllEvent();
                 break;
         }
     }
+
+    private TextWatcher tw = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            doFilter(charSequence.toString());
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+
+        }
+    };
 
     private void getBookedEvent() {
         mDatabaseHelper.getRegisteredEvent(uid, result -> {
@@ -277,5 +301,32 @@ public class AllEventActivity extends AppCompatActivity {
 
     private interface IsEventLikedListener {
         void onResult(boolean isLiked);
+    }
+
+    private void doFilter(String query) {
+        if (!isFiltered) {
+            mListAll.clear();
+            mListAll.addAll(mList);
+            isFiltered = true;
+        }
+
+        mList.clear();
+        if (query == null || query.isEmpty()) {
+            mList.addAll(mListAll);
+            isFiltered = false;
+        } else {
+            for (int i = 0; i < mListAll.size(); i++) {
+                Event event = mListAll.get(i);
+                if (event.getTitle().toLowerCase().contains(query) ||
+                        event.getPublisher().toLowerCase().contains(query) ||
+                        event.getDescription().toLowerCase().contains(query) ||
+                        event.getDate().toLowerCase().contains(query)) {
+                    mList.add(event);
+                }
+            }
+        }
+        tvPurpose.setText(String.format("%s for %s (%s)", listTitle, query, String.valueOf(mList.size())));
+        mAdapter.setListEvents(mList);
+        mAdapter.notifyDataSetChanged();
     }
 }

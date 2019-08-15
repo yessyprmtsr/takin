@@ -29,6 +29,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import android.view.Menu;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -37,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final String TAG = MainActivity.class.getSimpleName();
     private final String SELECTED_BOTTOM_MENU = "selected_bottom_menu";
 
+    private EditText etSearch;
     private BottomNavigationView bottomNavigationView;
     private NavigationView navigationDrawerView;
     private static TextView email;
@@ -75,6 +77,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         username.setText(String.format("%s %s", Prefs.getString(GlobalConfig.FIRST_NAME_PREFS, null), Prefs.getString(GlobalConfig.LAST_NAME_PREFS, null)));
         email = navHeaderView.findViewById(R.id.textViewDrawerEmail);
         setPointInfo();
+
+        // EditText Search
+        etSearch = findViewById(R.id.editTextSearch);
+        etSearch.setFocusable(false);
+        etSearch.setOnClickListener(v -> {
+            Intent i = new Intent(this, AllEventActivity.class);
+            i.putExtra(AllEventActivity.EXTRA_EVENT, AppValueObject.SEARCH.getValue());
+            startActivity(i);
+        });
 
         // Setting up bottom navigation
         bottomNavigationView = findViewById(R.id.nav_bottom_view);
