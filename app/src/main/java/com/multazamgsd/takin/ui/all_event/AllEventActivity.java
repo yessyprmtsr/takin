@@ -25,6 +25,7 @@ import com.multazamgsd.takin.model.Event;
 import com.multazamgsd.takin.ui.event_detail.EventDetailActivity;
 import com.multazamgsd.takin.util.AuthHelper;
 import com.multazamgsd.takin.util.DatabaseHelper;
+import com.multazamgsd.takin.vo.AppValueObject;
 
 import java.util.ArrayList;
 
@@ -78,17 +79,21 @@ public class AllEventActivity extends AppCompatActivity {
 
         INTENT_PURPOSE = getIntent().getStringExtra(EXTRA_EVENT);
         switch (INTENT_PURPOSE) {
+            case "home":
+                listTitle = "Explore";
+                getAllEvent();
+                break;
             case "seminar":
                 listTitle = "Seminar";
-                getEventByType("seminar");
+                getEventByType(AppValueObject.SEMINAR.getValue());
                 break;
             case "committee":
                 listTitle = "Committee";
-                getEventByType("committee");
+                getEventByType(AppValueObject.COMMITTEE.getValue());
                 break;
             case "contest":
                 listTitle = "Contest";
-                getEventByType("contest");
+                getEventByType(AppValueObject.CONTEST.getValue());
                 break;
             case "liked":
                 listTitle = "Liked";
@@ -132,6 +137,18 @@ public class AllEventActivity extends AppCompatActivity {
 
     private void getEventByType(String type) {
         mDatabaseHelper.getEventListByType(type, result -> {
+            mList.clear();
+            mList.addAll(result);
+
+            mAdapter.setListEvents(mList);
+            mAdapter.notifyDataSetChanged();
+
+            setLoading(false);
+        });
+    }
+
+    private void getAllEvent() {
+        mDatabaseHelper.getEventList(result -> {
             mList.clear();
             mList.addAll(result);
 

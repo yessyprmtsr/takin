@@ -17,6 +17,7 @@ import com.multazamgsd.takin.ui.all_event.AllEventActivity;
 import com.multazamgsd.takin.util.AuthHelper;
 import com.multazamgsd.takin.util.GlideApp;
 import com.multazamgsd.takin.util.GlobalConfig;
+import com.multazamgsd.takin.vo.AppValueObject;
 import com.pixplicity.easyprefs.library.Prefs;
 
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -109,6 +110,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+        switch (id) {
+            case R.id.action_favorite:
+                Intent i = new Intent(MainActivity.this, AllEventActivity.class);
+                i.putExtra(AllEventActivity.EXTRA_EVENT, AppValueObject.LIKED.getValue());
+                startActivity(i);
+
+                break;
+            case R.id.action_notification:
+                break;
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -143,19 +154,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         switch (item.getItemId()) {
             case R.id.navigation_home:
-                fragment = HomeFragment.newInstance();
+                fragment = HomeFragment.newInstance(AppValueObject.HOME.getValue());
                 break;
             case R.id.navigation_seminar:
-                fragment = HomeFragment.newInstance();
+                fragment = HomeFragment.newInstance(AppValueObject.SEMINAR.getValue());
                 break;
             case R.id.navigation_committee:
-                fragment = HomeFragment.newInstance();
+                fragment = HomeFragment.newInstance(AppValueObject.COMMITTEE.getValue());
                 break;
             case R.id.navigation_contest:
-                fragment = HomeFragment.newInstance();
+                fragment = HomeFragment.newInstance(AppValueObject.CONTEST.getValue());
                 break;
             default:
-                fragment = HomeFragment.newInstance();
+                fragment = HomeFragment.newInstance(AppValueObject.HOME.getValue());
         }
 
         if (fragment != null) {

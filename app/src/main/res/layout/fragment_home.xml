@@ -54,6 +54,7 @@
 
             <!--Calendar view-->
             <RelativeLayout
+                android:id="@+id/relativeLayoutCal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/app_default_right_left_margin"
@@ -78,11 +79,13 @@
             </RelativeLayout>
 
             <androidx.cardview.widget.CardView
+                android:id="@+id/cardViewCal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/app_default_right_left_margin"
                 android:layout_marginEnd="@dimen/app_default_right_left_margin"
                 app:cardCornerRadius="10dp"
+                android:layout_marginBottom="26dp"
                 app:cardElevation="2dp">
 
                 <LinearLayout
@@ -126,7 +129,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/app_default_right_left_margin"
                 android:layout_marginRight="@dimen/app_default_right_left_margin"
-                android:layout_marginTop="26dp"
                 android:layout_marginBottom="8dp">
 
                 <TextView
@@ -138,6 +140,7 @@
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/textViewSeeAll1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
@@ -178,6 +181,7 @@
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/textViewSeeAll2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"

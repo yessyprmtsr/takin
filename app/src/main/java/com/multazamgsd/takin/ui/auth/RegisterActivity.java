@@ -128,7 +128,6 @@ public class RegisterActivity extends AppCompatActivity {
                             }
                         });
                     } else {
-                        ld.dismiss();
                         Toast.makeText(this,"Sign up error, please try again", Toast.LENGTH_LONG).show();
                     }
                 });

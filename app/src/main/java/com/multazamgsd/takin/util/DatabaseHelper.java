@@ -106,6 +106,20 @@ public class DatabaseHelper {
         });
     }
 
+    public void getEventList(EventListListener callback) {
+        eventRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                ArrayList<Event> result = new ArrayList<>();
+                for(DocumentSnapshot doc : task.getResult()){
+                    Event e = doc.toObject(Event.class);
+                    e.setId(doc.getId());
+                    result.add(e);
+                }
+                callback.onComplete(result);
+            }
+        });
+    }
+
     public void getUserDetailFromUID(String uid, GetUserDetailFromUIDListener callback) {
         userRef.document(uid).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {

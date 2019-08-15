@@ -8,6 +8,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ShareCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -22,21 +23,27 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.github.sundeepk.compactcalendarview.CompactCalendarView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.gson.Gson;
 import com.multazamgsd.takin.R;
 import com.multazamgsd.takin.model.Event;
+import com.multazamgsd.takin.ui.all_event.AllEventActivity;
 import com.multazamgsd.takin.ui.event_detail.EventDetailActivity;
+import com.multazamgsd.takin.ui.main.MainActivity;
 import com.multazamgsd.takin.util.AuthHelper;
 import com.multazamgsd.takin.util.DatabaseHelper;
 import com.multazamgsd.takin.util.DividerItemDecorator;
 import com.multazamgsd.takin.util.ShadowTransformer;
+import com.multazamgsd.takin.vo.AppValueObject;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -55,6 +62,9 @@ public class HomeFragment extends Fragment {
     private DatabaseHelper mDatabaseHelper;
     private AuthHelper mAuthHelper;
 
+    // IMPORTANT
+    public static String SECTION;
+
     private ArrayList<Event> slideShowList = new ArrayList<>();
     private ArrayList<Event> recommendedList = new ArrayList<>();
     private ArrayList<Event> newList = new ArrayList<>();
@@ -66,7 +76,11 @@ public class HomeFragment extends Fragment {
     private RecyclerView rvEventNew;
     private CompactCalendarView compactCalendarView;
     private ImageView btRefreshCalendar;
-    private TextView tvMonth;
+    private TextView tvMonth, tvSeeAll1, tvSeeAll2;
+
+    // Calendar container
+    private RelativeLayout rlCal;
+    private CardView cvCal;
 
     // Slide show
     private ViewPager mViewPager;
@@ -80,7 +94,8 @@ public class HomeFragment extends Fragment {
 
     public HomeFragment() {}
 
-    public static Fragment newInstance() {
+    public static Fragment newInstance(String section) {
+        SECTION = section;
         return new HomeFragment();
     }
 
@@ -95,6 +110,13 @@ public class HomeFragment extends Fragment {
         rvEventRecommended = view.findViewById(R.id.recyclerViewEventRecommended);
         rvEventNew = view.findViewById(R.id.recyclerViewEventNew);
         mViewPager = view.findViewById(R.id.viewPagerSlideshow);
+
+        // Calendar container
+        rlCal = view.findViewById(R.id.relativeLayoutCal);
+        cvCal = view.findViewById(R.id.cardViewCal);
+
+        tvSeeAll1 = view.findViewById(R.id.textViewSeeAll1);
+        tvSeeAll2 = view.findViewById(R.id.textViewSeeAll2);
 
         compactCalendarView = view.findViewById(R.id.calendarView);
         tvMonth = view.findViewById(R.id.textViewMonth);
@@ -111,6 +133,12 @@ public class HomeFragment extends Fragment {
         if (getActivity() != null) {
             mDatabaseHelper = new DatabaseHelper();
             mAuthHelper = new AuthHelper(getActivity());
+
+            if (SECTION.equals(AppValueObject.HOME.getValue())) {
+                showHideCalendarContainer(false);
+            } else {
+                showHideCalendarContainer(true);
+            }
 
             setSlideshow();
             setCalendar();
@@ -235,7 +263,6 @@ public class HomeFragment extends Fragment {
                     Event oneEvent = new Event();
                     oneEvent.setDate(eventObject.getString("date"));
                     oneEvent.setDescription(eventObject.getString("description"));
-                    Log.d(TAG, new Gson().toJson(eventObject.getString("description")));
                     oneEvent.setLiked(eventObject.getBoolean("isLiked"));
                     oneEvent.setLocation_address(eventObject.getString("location_address"));
                     oneEvent.setLocation_lat(eventObject.getString("location_lat"));
@@ -279,6 +306,12 @@ public class HomeFragment extends Fragment {
     }
 
     private void setNewList() {
+        tvSeeAll1.setOnClickListener(v -> {
+            Intent i = new Intent(getActivity(), AllEventActivity.class);
+            i.putExtra(AllEventActivity.EXTRA_EVENT, SECTION);
+            startActivity(i);
+        });
+
         newAdapter = new NewAdapter(getActivity(), new NewAdapter.eventAdapterListener() {
             @Override
             public void onEventClick(int itemPosition) {
@@ -305,6 +338,12 @@ public class HomeFragment extends Fragment {
     }
 
     private void setRecommendedList() {
+        tvSeeAll2.setOnClickListener(v -> {
+            Intent i = new Intent(getActivity(), AllEventActivity.class);
+            i.putExtra(AllEventActivity.EXTRA_EVENT, SECTION);
+            startActivity(i);
+        });
+
         recommendedAdapter = new RecommendedAdapter(getActivity(), new RecommendedAdapter.eventAdapterListener() {
             @Override
             public void onEventClick(int itemPosition) {
@@ -331,7 +370,15 @@ public class HomeFragment extends Fragment {
     }
 
     private void loadData() {
-        FirebaseFirestore.getInstance().collection("event").limit(7).get().addOnCompleteListener(task -> {
+        Query query;
+        if (SECTION.equals(AppValueObject.HOME.getValue())) {
+            query = FirebaseFirestore.getInstance().collection("event");
+        } else {
+            query = FirebaseFirestore.getInstance()
+                        .collection("event")
+                        .whereEqualTo("type", SECTION);
+        }
+        query.limit(7).get().addOnCompleteListener(task -> {
             ArrayList<Event> result = new ArrayList<>();
             if (task.isSuccessful()) {
                 for(DocumentSnapshot doc : task.getResult()){
@@ -392,7 +439,13 @@ public class HomeFragment extends Fragment {
 
     }
 
-    private static float dpToPixels(int dp, Context context) {
-        return dp * (context.getResources().getDisplayMetrics().density);
+    private void showHideCalendarContainer(boolean show) {
+        if (show) {
+            rlCal.setVisibility(View.VISIBLE);
+            cvCal.setVisibility(View.VISIBLE);
+        } else {
+            rlCal.setVisibility(View.GONE);
+            cvCal.setVisibility(View.GONE);
+        }
     }
 }

@@ -112,11 +112,11 @@ public class LoginActivity extends AppCompatActivity {
                                 });
                             } else {
                                 ld.dismiss();
+                                mAuth.signOut();
                                 Toast.makeText(this, "You are not registered, please Sign Up first", Toast.LENGTH_LONG).show();
                             }
                         });
                     } else {
-                        ld.dismiss();
                         Toast.makeText(this, "Sign up error, please try again", Toast.LENGTH_LONG).show();
                     }
                 });
