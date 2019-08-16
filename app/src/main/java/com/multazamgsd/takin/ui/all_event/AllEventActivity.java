@@ -226,7 +226,8 @@ public class AllEventActivity extends AppCompatActivity {
             String eventId = mList.get(itemPosition).getId();
             if (mList.get(itemPosition).isLiked()) {  // Do Unlike
                 // Checking isEventAlreadyLiked?
-                isEventAlreadyLiked(eventId, uid, isLiked -> {
+                mDatabaseHelper.checkEventLiked(eventId, uid, result -> {
+                    boolean isLiked = result != null;
                     if (!isLiked) {
                         // No need to unlike, because this event is not liked by this user
                         Event thisEvent = mList.get(itemPosition);
@@ -248,7 +249,8 @@ public class AllEventActivity extends AppCompatActivity {
                 });
             } else { // Do like
                 // Checking isEventAlreadyLiked?
-                isEventAlreadyLiked(eventId, uid, isLiked -> {
+                mDatabaseHelper.checkEventLiked(eventId, uid, result -> {
+                    boolean isLiked = result != null;
                     if (isLiked) {
                         // No need to like, because this event is already liked by this user
                         Event thisEvent = mList.get(itemPosition);
@@ -272,13 +274,6 @@ public class AllEventActivity extends AppCompatActivity {
         }
     };
 
-    private void isEventAlreadyLiked(String eventId, String uid, IsEventLikedListener callback) {
-        mDatabaseHelper.checkEventLiked(eventId, uid, commentId -> {
-            boolean isEventLiked = commentId != null;
-            callback.onResult(isEventLiked);
-        });
-    }
-
     private void detailIntent(Event dataToSend) {
         Intent i = new Intent(this, EventDetailActivity.class);
         i.putExtra(EventDetailActivity.EXTRA_EVENT, dataToSend);
@@ -297,10 +292,6 @@ public class AllEventActivity extends AppCompatActivity {
                                 event.getTitle(),
                                 String.valueOf(ticketAvailable)))
                 .startChooser();
-    }
-
-    private interface IsEventLikedListener {
-        void onResult(boolean isLiked);
     }
 
     private void doFilter(String query) {

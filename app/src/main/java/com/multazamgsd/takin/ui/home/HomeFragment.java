@@ -25,6 +25,7 @@ import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.sundeepk.compactcalendarview.CompactCalendarView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -64,6 +65,7 @@ public class HomeFragment extends Fragment {
 
     // IMPORTANT
     public static String SECTION;
+    private String uid;
 
     private ArrayList<Event> slideShowList = new ArrayList<>();
     private ArrayList<Event> recommendedList = new ArrayList<>();
@@ -134,6 +136,7 @@ public class HomeFragment extends Fragment {
             mDatabaseHelper = new DatabaseHelper();
             mAuthHelper = new AuthHelper(getActivity());
 
+            uid = mAuthHelper.getCurrentUser().getUid();
             if (SECTION.equals(AppValueObject.HOME.getValue())) {
                 showHideCalendarContainer(false);
             } else {
@@ -320,7 +323,7 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onEventLike(int itemPosition) {
-                doLikeItem(recommendedList.get(itemPosition), "new");
+                doLikeNewItem(itemPosition);
             }
 
             @Override
@@ -352,7 +355,7 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onEventLike(int itemPosition) {
-                doLikeItem(recommendedList.get(itemPosition), "recommended");
+                doLikeRecommendedItem(itemPosition);
             }
 
             @Override
@@ -435,8 +438,106 @@ public class HomeFragment extends Fragment {
                 .startChooser();
     }
 
-    private void doLikeItem(Event event, String whatList) {
+    private void doLikeRecommendedItem(int itemPosition) {
+        String eventId = recommendedList.get(itemPosition).getId();
+        if (recommendedList.get(itemPosition).isLiked()) {  // Do Unlike
+            // Checking isEventAlreadyLiked?
+            mDatabaseHelper.checkEventLiked(eventId, uid, result -> {
+                boolean isLiked = result != null;
+                if (!isLiked) {
+                    // No need to unlike, because this event is not liked by this user
+                    Event thisEvent = recommendedList.get(itemPosition);
+                    thisEvent.setLiked(false);
+                    recommendedList.set(itemPosition, thisEvent);
+                    recommendedAdapter.notifyItemChanged(itemPosition);
+                    return;
+                }
 
+                // Do unlike event
+                mDatabaseHelper.doUnlikeEvent(eventId, uid, task -> {
+                    Toast.makeText(getActivity(), "Deleted from liked event", Toast.LENGTH_LONG).show();
+
+                    Event thisEvent = recommendedList.get(itemPosition);
+                    thisEvent.setLiked(false);
+                    recommendedList.set(itemPosition, thisEvent);
+                    recommendedAdapter.notifyItemChanged(itemPosition);
+                });
+            });
+        } else { // Do like
+            // Checking isEventAlreadyLiked?
+            mDatabaseHelper.checkEventLiked(eventId, uid, result -> {
+                boolean isLiked = result != null;
+                if (isLiked) {
+                    // No need to like, because this event is already liked by this user
+                    Event thisEvent = recommendedList.get(itemPosition);
+                    thisEvent.setLiked(true);
+                    recommendedList.set(itemPosition, thisEvent);
+                    recommendedAdapter.notifyItemChanged(itemPosition);
+                    return;
+                }
+
+                // Do like event
+                mDatabaseHelper.doLikeEvent(eventId, uid, task -> {
+                    Toast.makeText(getActivity(), "Added to liked event", Toast.LENGTH_LONG).show();
+
+                    Event thisEvent = recommendedList.get(itemPosition);
+                    thisEvent.setLiked(true);
+                    recommendedList.set(itemPosition, thisEvent);
+                    recommendedAdapter.notifyItemChanged(itemPosition);
+                });
+            });
+        }
+    }
+
+    private void doLikeNewItem(int itemPosition) {
+        String eventId = newList.get(itemPosition).getId();
+        if (newList.get(itemPosition).isLiked()) {  // Do Unlike
+            // Checking isEventAlreadyLiked?
+            mDatabaseHelper.checkEventLiked(eventId, uid, result -> {
+                boolean isLiked = result != null;
+                if (!isLiked) {
+                    // No need to unlike, because this event is not liked by this user
+                    Event thisEvent = newList.get(itemPosition);
+                    thisEvent.setLiked(false);
+                    newList.set(itemPosition, thisEvent);
+                    newAdapter.notifyItemChanged(itemPosition);
+                    return;
+                }
+
+                // Do unlike event
+                mDatabaseHelper.doUnlikeEvent(eventId, uid, task -> {
+                    Toast.makeText(getActivity(), "Deleted from liked event", Toast.LENGTH_LONG).show();
+
+                    Event thisEvent = newList.get(itemPosition);
+                    thisEvent.setLiked(false);
+                    newList.set(itemPosition, thisEvent);
+                    newAdapter.notifyItemChanged(itemPosition);
+                });
+            });
+        } else { // Do like
+            // Checking isEventAlreadyLiked?
+            mDatabaseHelper.checkEventLiked(eventId, uid, result -> {
+                boolean isLiked = result != null;
+                if (isLiked) {
+                    // No need to like, because this event is already liked by this user
+                    Event thisEvent = newList.get(itemPosition);
+                    thisEvent.setLiked(true);
+                    newList.set(itemPosition, thisEvent);
+                    newAdapter.notifyItemChanged(itemPosition);
+                    return;
+                }
+
+                // Do like event
+                mDatabaseHelper.doLikeEvent(eventId, uid, task -> {
+                    Toast.makeText(getActivity(), "Added to liked event", Toast.LENGTH_LONG).show();
+
+                    Event thisEvent = newList.get(itemPosition);
+                    thisEvent.setLiked(true);
+                    newList.set(itemPosition, thisEvent);
+                    newAdapter.notifyItemChanged(itemPosition);
+                });
+            });
+        }
     }
 
     private void showHideCalendarContainer(boolean show) {
