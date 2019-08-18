@@ -25,9 +25,9 @@ public class LoadingDialog {
         lp.copyFrom(dialog.getWindow().getAttributes());
         lp.width = WindowManager.LayoutParams.WRAP_CONTENT;
         lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        dialog.getWindow().setAttributes(lp);
 
         dialog.show();
-        dialog.getWindow().setAttributes(lp);
     }
 
     public void dismiss() {

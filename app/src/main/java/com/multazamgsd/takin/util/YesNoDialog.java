@@ -34,6 +34,7 @@ public class YesNoDialog {
         lp.copyFrom(dialog.getWindow().getAttributes());
         lp.width = WindowManager.LayoutParams.WRAP_CONTENT;
         lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        dialog.getWindow().setAttributes(lp);
 
         ((TextView) dialog.findViewById(R.id.textViewMessage)).setText(message);
 
@@ -45,7 +46,6 @@ public class YesNoDialog {
         });
 
         dialog.show();
-        dialog.getWindow().setAttributes(lp);
     }
 
     public interface YesNoDialogListener {

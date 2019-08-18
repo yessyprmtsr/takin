@@ -156,6 +156,7 @@ public class RegistrationActivity extends AppCompatActivity {
                         lp.copyFrom(dialog.getWindow().getAttributes());
                         lp.width = WindowManager.LayoutParams.WRAP_CONTENT;
                         lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+                        dialog.getWindow().setAttributes(lp);
 
                         ((TextView) dialog.findViewById(R.id.textViewMessage)).setText("Registration successful, go to My Event to access your ticket");
 
@@ -163,6 +164,7 @@ public class RegistrationActivity extends AppCompatActivity {
                             Intent i = new Intent(RegistrationActivity.this, AllEventActivity.class);
                             i.putExtra(AllEventActivity.EXTRA_EVENT, "booked");
                             startActivity(i);
+                            dialog.dismiss();
                             finish();
                             if (EventDetailActivity.activity != null) {
                                 EventDetailActivity.activity.finish();
@@ -175,7 +177,6 @@ public class RegistrationActivity extends AppCompatActivity {
                             ld.dismiss();
 
                             dialog.show();
-                            dialog.getWindow().setAttributes(lp);
                         });
                     } else {
                         ld.dismiss();

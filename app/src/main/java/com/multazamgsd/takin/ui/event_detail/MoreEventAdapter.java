@@ -114,6 +114,12 @@ public class MoreEventAdapter extends RecyclerView.Adapter<MoreEventAdapter.Even
             btLove = itemView.findViewById(R.id.buttonLove);
 
             itemView.setOnClickListener(v -> mEventAdapterListener.onEventClick(getAdapterPosition()));
+            tvTitle.setOnClickListener(v -> mEventAdapterListener.onEventClick(getAdapterPosition()));
+            tvLocation.setOnClickListener(v -> mEventAdapterListener.onEventClick(getAdapterPosition()));
+            tvDate.setOnClickListener(v -> mEventAdapterListener.onEventClick(getAdapterPosition()));
+            tvMonth.setOnClickListener(v -> mEventAdapterListener.onEventClick(getAdapterPosition()));
+            tvYear.setOnClickListener(v -> mEventAdapterListener.onEventClick(getAdapterPosition()));
+            ivBanner.setOnClickListener(v -> mEventAdapterListener.onEventClick(getAdapterPosition()));
             btShare.setOnClickListener(v -> mEventAdapterListener.onEventShare(getAdapterPosition()));
             btLove.setOnClickListener(v -> mEventAdapterListener.onEventLike(getAdapterPosition()));
         }

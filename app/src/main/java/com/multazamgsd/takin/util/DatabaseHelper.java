@@ -34,6 +34,7 @@ public class DatabaseHelper {
     private static String TABLE_COMMENT_NAME = "comment";
     private static String TABLE_TRANSACTION_NAME = "transaction";
     private static String TABLE_LIKE_NAME = "like";
+    private static String TABLE_NOTIFICATION_NAME = "notification";
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -42,6 +43,7 @@ public class DatabaseHelper {
     private CollectionReference commentRef = db.collection(TABLE_COMMENT_NAME);
     private CollectionReference transactionRef = db.collection(TABLE_TRANSACTION_NAME);
     private CollectionReference likeRef = db.collection(TABLE_LIKE_NAME);
+    private CollectionReference notifRef = db.collection(TABLE_NOTIFICATION_NAME);
 
     // Util
     private String timeNow = new StringHelper().timeNow(); //yyyy/MM/dd HH:mm:ss
@@ -107,7 +109,7 @@ public class DatabaseHelper {
     }
 
     public void getEventList(EventListListener callback) {
-        eventRef.get().addOnCompleteListener(task -> {
+        eventRef.orderBy("date", Query.Direction.ASCENDING).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 ArrayList<Event> result = new ArrayList<>();
                 for(DocumentSnapshot doc : task.getResult()){
@@ -212,12 +214,25 @@ public class DatabaseHelper {
         int ticketSoldAfterTransaction = ticketSoldBeforeTransaction + 1;
 
         transactionRef.add(transactionItem).addOnCompleteListener(task -> {
-            if (task.isComplete()) {
+            if (task.isSuccessful()) {
                 // Updating ticket sold value
                 eventRef
                     .document(event.getId())
                     .update("ticket_sold", String.valueOf(ticketSoldAfterTransaction))
-                    .addOnCompleteListener(getEventTask -> callback.onComplete(getEventTask));
+                    .addOnCompleteListener(getEventTask -> {
+                        // Creating notification
+                        Map<String, Object> notifItem = new HashMap<>();
+                        notifItem.put("uid", uid);
+                        notifItem.put("time", timeNow);
+                        notifItem.put("event_id", event.getId());
+                        notifRef
+                            .add(notifItem)
+                            .addOnCompleteListener(createNotifTask -> {
+                                if (createNotifTask.isSuccessful()) {
+                                    callback.onComplete(createNotifTask);
+                                }
+                            });
+                        });
             }
         });
     }

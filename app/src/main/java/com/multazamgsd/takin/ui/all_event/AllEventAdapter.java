@@ -1,13 +1,16 @@
 package com.multazamgsd.takin.ui.all_event;
 
 import android.app.Activity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.request.RequestOptions;
@@ -97,10 +100,12 @@ public class AllEventAdapter extends RecyclerView.Adapter<AllEventAdapter.EventV
     class EventViewHolder extends RecyclerView.ViewHolder {
         final TextView tvTitle, tvLocation, tvDate, tvTime, tvPrice;
         final ImageView ivBanner, btShare, btLove;
+        CardView cv;
 
         EventViewHolder(@NonNull View itemView) {
             super(itemView);
 
+            cv = itemView.findViewById(R.id.cardViewEventRow);
             tvTitle = itemView.findViewById(R.id.textViewEventTitle);
             tvLocation = itemView.findViewById(R.id.textViewEventLocationName);
             tvDate = itemView.findViewById(R.id.textViewEventDate);
@@ -111,6 +116,10 @@ public class AllEventAdapter extends RecyclerView.Adapter<AllEventAdapter.EventV
             btLove = itemView.findViewById(R.id.buttonLove);
 
             itemView.setOnClickListener(v -> mEventAdapterListener.onEventClick(getAdapterPosition()));
+            cv.setOnClickListener(v -> mEventAdapterListener.onEventClick(getAdapterPosition()));
+            ivBanner.setOnClickListener(v -> mEventAdapterListener.onEventClick(getAdapterPosition()));
+            tvTitle.setOnClickListener(v -> mEventAdapterListener.onEventClick(getAdapterPosition()));
+            tvLocation.setOnClickListener(v -> mEventAdapterListener.onEventClick(getAdapterPosition()));
             btShare.setOnClickListener(v -> mEventAdapterListener.onEventShare(getAdapterPosition()));
             btLove.setOnClickListener(v -> mEventAdapterListener.onEventLike(getAdapterPosition()));
         }
