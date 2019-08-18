@@ -14,6 +14,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.multazamgsd.takin.R;
 import com.multazamgsd.takin.ui.home.HomeFragment;
 import com.multazamgsd.takin.ui.all_event.AllEventActivity;
+import com.multazamgsd.takin.ui.notification.NotificationActivity;
 import com.multazamgsd.takin.util.AuthHelper;
 import com.multazamgsd.takin.util.GlideApp;
 import com.multazamgsd.takin.util.GlobalConfig;
@@ -129,6 +130,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 break;
             case R.id.action_notification:
+                Intent u = new Intent(MainActivity.this, NotificationActivity.class);
+                startActivity(u);
+
                 break;
         }
         return super.onOptionsItemSelected(item);
