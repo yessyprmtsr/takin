@@ -100,12 +100,14 @@ public class AllEventAdapter extends RecyclerView.Adapter<AllEventAdapter.EventV
     class EventViewHolder extends RecyclerView.ViewHolder {
         final TextView tvTitle, tvLocation, tvDate, tvTime, tvPrice;
         final ImageView ivBanner, btShare, btLove;
+        RelativeLayout rl;
         CardView cv;
 
         EventViewHolder(@NonNull View itemView) {
             super(itemView);
 
             cv = itemView.findViewById(R.id.cardViewEventRow);
+            rl = itemView.findViewById(R.id.relativeLayoutEventRow);
             tvTitle = itemView.findViewById(R.id.textViewEventTitle);
             tvLocation = itemView.findViewById(R.id.textViewEventLocationName);
             tvDate = itemView.findViewById(R.id.textViewEventDate);
@@ -117,9 +119,7 @@ public class AllEventAdapter extends RecyclerView.Adapter<AllEventAdapter.EventV
 
             itemView.setOnClickListener(v -> mEventAdapterListener.onEventClick(getAdapterPosition()));
             cv.setOnClickListener(v -> mEventAdapterListener.onEventClick(getAdapterPosition()));
-            ivBanner.setOnClickListener(v -> mEventAdapterListener.onEventClick(getAdapterPosition()));
-            tvTitle.setOnClickListener(v -> mEventAdapterListener.onEventClick(getAdapterPosition()));
-            tvLocation.setOnClickListener(v -> mEventAdapterListener.onEventClick(getAdapterPosition()));
+            rl.setOnClickListener(v -> mEventAdapterListener.onEventClick(getAdapterPosition()));
             btShare.setOnClickListener(v -> mEventAdapterListener.onEventShare(getAdapterPosition()));
             btLove.setOnClickListener(v -> mEventAdapterListener.onEventLike(getAdapterPosition()));
         }

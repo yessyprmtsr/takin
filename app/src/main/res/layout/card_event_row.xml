@@ -7,9 +7,12 @@
     android:layout_height="wrap_content"
     android:elevation="12dp"
     android:layout_marginBottom="12dp"
+    android:focusable="true"
+    android:clickable="true"
     app:cardCornerRadius="12dp">
 
     <RelativeLayout
+        android:id="@+id/relativeLayoutEventRow"
         android:layout_width="match_parent"
         android:padding="12dp"
         android:layout_height="124dp"

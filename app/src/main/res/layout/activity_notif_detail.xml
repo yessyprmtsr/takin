@@ -129,8 +129,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_toEndOf="@+id/iconTime"
-                                android:layout_below="@+id/textViewEventDetailDate"
-                                android:text="09:00 - 12:00 WIB"/>
+                                android:layout_below="@+id/textViewEventDetailDate" />
 
                         </RelativeLayout>
 
@@ -151,16 +150,14 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_toEndOf="@+id/iconLocation"
-                                android:textColor="@android:color/black"
-                                android:text="Trans Grand Ballroom, Bandung"/>
+                                android:textColor="@android:color/black" />
 
                             <TextView
                                 android:id="@+id/textViewEventDetailAddress"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_toEndOf="@+id/iconLocation"
-                                android:layout_below="@+id/textViewEventDetailPlace"
-                                android:text="289 Jalan Gatot Subroto, Batununggal, Jawa Barat"/>
+                                android:layout_below="@+id/textViewEventDetailPlace" />
 
                         </RelativeLayout>
 

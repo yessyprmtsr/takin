@@ -17,6 +17,7 @@ import com.google.firebase.firestore.SetOptions;
 import com.google.gson.GsonBuilder;
 import com.multazamgsd.takin.model.Comment;
 import com.multazamgsd.takin.model.Event;
+import com.multazamgsd.takin.model.Notification;
 import com.multazamgsd.takin.model.Transaction;
 import com.multazamgsd.takin.model.User;
 
@@ -349,6 +350,21 @@ public class DatabaseHelper {
         });
     }
 
+    public void getNotification(String uid, String username, NotificationListener callback) {
+        notifRef.whereEqualTo("uid", uid).get().addOnCompleteListener(notifTask -> {
+           if (notifTask.isSuccessful()) {
+               ArrayList<Notification> result = new ArrayList<>();
+               for(DocumentSnapshot doc : notifTask.getResult()){
+                   Notification notifItem = doc.toObject(Notification.class);
+                   notifItem.setTitle("Good news,  your payment  confirmation has success !");
+                   notifItem.setContent(String.format("Hello, %s We have received your payment process.", username));
+                   result.add(notifItem);
+               }
+               callback.onComplete(result);
+           }
+        });
+    }
+
     public interface CheckFieldExistListener {
         void onComplete(Boolean isExist);
     }
@@ -371,6 +387,10 @@ public class DatabaseHelper {
 
     public interface EventListListener {
         void onComplete(ArrayList<Event> result);
+    }
+
+    public interface NotificationListener {
+        void onComplete(ArrayList<Notification> result);
     }
 
     public interface EventItemListener {

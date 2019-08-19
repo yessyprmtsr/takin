@@ -5,9 +5,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.request.RequestOptions;
@@ -99,10 +101,14 @@ public class MoreEventAdapter extends RecyclerView.Adapter<MoreEventAdapter.Even
     class EventViewHolder extends RecyclerView.ViewHolder {
         final TextView tvTitle, tvLocation, tvDate, tvMonth, tvYear, tvPrice;
         final ImageView ivBanner, btShare, btLove;
+        CardView cv;
+        RelativeLayout rl;
 
         EventViewHolder(@NonNull View itemView) {
             super(itemView);
 
+            cv = itemView.findViewById(R.id.cardView);
+            rl = itemView.findViewById(R.id.relativeLayoutEventRow);
             tvTitle = itemView.findViewById(R.id.textViewEventTitle);
             tvLocation = itemView.findViewById(R.id.textViewEventLocationName);
             tvDate = itemView.findViewById(R.id.textViewDate);
@@ -114,12 +120,7 @@ public class MoreEventAdapter extends RecyclerView.Adapter<MoreEventAdapter.Even
             btLove = itemView.findViewById(R.id.buttonLove);
 
             itemView.setOnClickListener(v -> mEventAdapterListener.onEventClick(getAdapterPosition()));
-            tvTitle.setOnClickListener(v -> mEventAdapterListener.onEventClick(getAdapterPosition()));
-            tvLocation.setOnClickListener(v -> mEventAdapterListener.onEventClick(getAdapterPosition()));
-            tvDate.setOnClickListener(v -> mEventAdapterListener.onEventClick(getAdapterPosition()));
-            tvMonth.setOnClickListener(v -> mEventAdapterListener.onEventClick(getAdapterPosition()));
-            tvYear.setOnClickListener(v -> mEventAdapterListener.onEventClick(getAdapterPosition()));
-            ivBanner.setOnClickListener(v -> mEventAdapterListener.onEventClick(getAdapterPosition()));
+            rl.setOnClickListener(v -> mEventAdapterListener.onEventClick(getAdapterPosition()));
             btShare.setOnClickListener(v -> mEventAdapterListener.onEventShare(getAdapterPosition()));
             btLove.setOnClickListener(v -> mEventAdapterListener.onEventLike(getAdapterPosition()));
         }
