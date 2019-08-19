@@ -11,6 +11,8 @@ import android.widget.TextView;
 
 import com.multazamgsd.takin.R;
 import com.multazamgsd.takin.util.DatabaseHelper;
+import com.multazamgsd.takin.util.GlobalConfig;
+import com.pixplicity.easyprefs.library.Prefs;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -30,6 +32,7 @@ public class NotifDetailActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         setTitle("Notification Detail");
+        ((TextView) findViewById(R.id.textViewGreeting)).setText(String.format("Dear, %s", Prefs.getString(GlobalConfig.FIRST_NAME_PREFS, null)));
 
         String eventId = getIntent().getStringExtra(extra);
         new DatabaseHelper().getEventDetail(eventId, event -> {
